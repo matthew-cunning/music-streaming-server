@@ -1,45 +1,23 @@
 package main
 
 import (
-	"bytes"
-	"sync"
-
-	// "encoding/binary"
 	"flag"
-	"github.com/matthew-c-atu/project-audio-streamer/pkg/connect"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"time"
+
+	"github.com/matthew-c-atu/project-audio-streamer/pkg/connect"
 )
 
-const (
-	// Sample rate of the audio file
-	sampleRate = 44100
-	seconds    = 1
-	// Higher buffer size = more cpu intensive, but less chance for dropped data
-	BUFFERSIZE = 8192
-	// Lower delay = more responsive, faster streaming
-	// Too high delay = dropped buffer chunks
-	DELAY = 250 // milliseconds
-)
-
-// Wrapper for what is required with each connection - a byte slice channel buffer and a byte slice buffer
-type Connection struct {
-	bufferChannel chan []byte
-	buffer        []byte
+var audioSettings = &connect.AudioSettings{
+	SampleRate: connect.DEFAULT_SAMPLERATE,
+	Seconds:    connect.DEFAULT_SECONDS,
+	BufferSize: connect.DEFAULT_BUFFERSIZE,
+	Delay:      connect.DEFAULT_DELAY,
 }
 
-// Need a way to handle multiple requests concurrently - this means connection doesn't get blocked
-// Trying to do this without concurrency results in the stream crashing after loading the first buffered chunk
-// ConnectionPool is a singleton
-type ConnectionPool struct {
-	// Map pointer to connection to empty struct
-	ConnectionMap map[*Connection]struct{}
-	// Mutex to prevent data races when handling concurrent requests
-	mu sync.Mutex
-}
+// TODO: Add flags for port selection
 
 func main() {
 	filename := flag.String("filename", "./music/bou-closer-ft-slay.aac", "path to the audio file")
@@ -63,11 +41,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	totalStreamedSize = 0
-	connPool := NewConnectionPool()
+	// totalStreamedSize = 0
+	connPool := connect.NewConnectionPool()
 
 	log.Println("calling go stream...")
-	go stream(connPool, contents)
+	go connect.Stream(connPool, contents, audioSettings)
 	// Array equal to sample rate * 1s
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -80,12 +58,12 @@ func main() {
 			panic("expected http.ResponseWriter to be an http.Flusher")
 		}
 
-		connection := &Connection{bufferChannel: make(chan []byte), buffer: make([]byte, BUFFERSIZE)}
+		connection := &connect.Connection{BufferChannel: make(chan []byte), Buffer: make([]byte, audioSettings.BufferSize)}
 		connPool.AddConnection(connection)
 		log.Printf("%s has connected to the audio stream\n", r.Host)
 
 		for {
-			buf := <-connection.bufferChannel
+			buf := <-connection.BufferChannel
 			if _, err := w.Write(buf); err != nil {
 				connPool.DeleteConnection(connection)
 				log.Printf("%s's connection to the audio stream has been closed\n", r.Host)
@@ -93,7 +71,7 @@ func main() {
 			}
 			flusher.Flush() // Triger "chunked" encoding
 			log.Println("emptying buffer")
-			clear(connection.buffer)
+			clear(connection.Buffer)
 		}
 	})
 	log.Println("Listening on port 8080...")

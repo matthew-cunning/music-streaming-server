@@ -8,6 +8,17 @@ import (
 	"time"
 )
 
+const (
+	// Sample rate of the audio file
+	DEFAULT_SAMPLERATE = 44100
+	DEFAULT_SECONDS    = 1
+	// Higher buffer size = more cpu intensive, but less chance for dropped data
+	DEFAULT_BUFFERSIZE = 8192
+	// Lower delay = more responsive, faster streaming
+	// Too high delay = dropped buffer chunks
+	DEFAULT_DELAY = 250 // milliseconds
+)
+
 var (
 	totalStreamedSize int
 )
@@ -15,7 +26,7 @@ var (
 // The settings to pass to the creation of a new connection
 type AudioSettings struct {
 	SampleRate int
-	seconds    int
+	Seconds    int
 	BufferSize int
 	Delay      int
 }
@@ -23,8 +34,8 @@ type AudioSettings struct {
 // Wrapper for what is required with each connection - a byte slice channel buffer and a byte slice buffer
 
 type Connection struct {
-	bufferChannel chan []byte
-	buffer        []byte
+	BufferChannel chan []byte
+	Buffer        []byte
 }
 
 // Need a way to handle multiple requests concurrently - this means connection doesn't get blocked
@@ -63,11 +74,11 @@ func (cp *ConnectionPool) Broadcast(buffer []byte) {
 	cp.mu.Lock()
 
 	for connection := range cp.ConnectionMap {
-		copy(connection.buffer, buffer)
+		copy(connection.Buffer, buffer)
 		// Waits until each individual connection.bufferChannel is free
 		select {
-		case connection.bufferChannel <- connection.buffer:
-			size := len(connection.buffer)
+		case connection.BufferChannel <- connection.Buffer:
+			size := len(connection.Buffer)
 			totalStreamedSize += size
 			// log.Printf("Total streamed size: %v", totalStreamedSize)
 		default:
@@ -76,7 +87,7 @@ func (cp *ConnectionPool) Broadcast(buffer []byte) {
 }
 
 // Reads from entire contents of file and broadcasts to each connection in the connectionpool
-func stream(connectionPool *ConnectionPool, content []byte, settings *AudioSettings) {
+func Stream(connectionPool *ConnectionPool, content []byte, settings *AudioSettings) {
 
 	log.Println("inside go stream...")
 	buffer := make([]byte, settings.BufferSize)
