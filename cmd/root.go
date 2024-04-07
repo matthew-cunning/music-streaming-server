@@ -88,6 +88,7 @@ func (r *RootCfg) serve() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "audio/aac")
 		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		// w.Header().Set("Transfer-Encoding", "chunked")
 
 		flusher, ok := w.(http.Flusher)
@@ -97,13 +98,13 @@ func (r *RootCfg) serve() {
 
 		connection := &connect.Connection{BufferChannel: make(chan []byte), Buffer: make([]byte, audioSettings.BufferSize)}
 		connPool.AddConnection(connection)
-		log.Printf("%s has connected to the audio stream\n", r.Host)
+		log.Printf("%s has connected to the audio stream\n", r.UserAgent())
 
 		for {
 			buf := <-connection.BufferChannel
 			if _, err := w.Write(buf); err != nil {
 				connPool.DeleteConnection(connection)
-				log.Printf("%s's connection to the audio stream has been closed\n", r.Host)
+				log.Printf("%s's connection to the audio stream has been closed\n", r.UserAgent())
 				return
 			}
 			flusher.Flush() // Triger "chunked" encoding
