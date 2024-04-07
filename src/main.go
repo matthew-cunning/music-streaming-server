@@ -21,6 +21,7 @@ var audioSettings = &connect.AudioSettings{
 
 func main() {
 	filename := flag.String("filename", "./music/bou-closer-ft-slay.aac", "path to the audio file")
+	port := flag.String("port", "8080", "port on which to host application")
 	flag.Parse()
 
 	f, err := os.Open(*filename)
@@ -74,6 +75,6 @@ func main() {
 			clear(connection.Buffer)
 		}
 	})
-	log.Println("Listening on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Println("Listening on port", *port, "...")
+	log.Fatal(http.ListenAndServe(":"+*port, nil))
 }

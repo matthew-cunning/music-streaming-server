@@ -25,10 +25,10 @@ var (
 
 // The settings to pass to the creation of a new connection
 type AudioSettings struct {
-	SampleRate int
+	SampleRate int // Hz
 	Seconds    int
-	BufferSize int
-	Delay      int
+	BufferSize int // Bytes
+	Delay      int // ms
 }
 
 // Wrapper for what is required with each connection - a byte slice channel buffer and a byte slice buffer
