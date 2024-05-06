@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -34,7 +35,7 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		root := &RootCfg{cmd}
-		root.serve()
+		root.serveHls()
 	},
 }
 
@@ -50,11 +51,10 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.PersistentFlags().IntP("port", "p", 8080, "The port on which to host the server")
-	rootCmd.PersistentFlags().StringP("filepath", "f", "./music/bou-closer-ft-slay.aac", "path to the audio file")
+	rootCmd.PersistentFlags().StringP("filepath", "f", "music", "path to the audio file")
 }
 
 func (r *RootCfg) serve() {
-
 	// TODO: Add error handling/logging
 	port, _ := r.Flags().GetInt("port")
 
@@ -115,4 +115,29 @@ func (r *RootCfg) serve() {
 
 	log.Printf("Listening on port %d...\n", port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+}
+
+func (r *RootCfg) serveHls() {
+	port, _ := r.Flags().GetInt("port")
+	filepath, _ := r.Flags().GetString("filepath")
+
+	// connPool := connect.NewConnectionPool()
+
+	log.Println("calling go stream...")
+	// go connect.Stream(connPool, contents, audioSettings)
+	// Array equal to sample rate * 1s
+
+	http.Handle("/", addHeaders(http.FileServer(http.Dir(filepath))))
+
+	slog.Info(fmt.Sprintf("Starting server on port %v\n", port))
+	slog.Info(fmt.Sprintf("Serving %s over HTTP on port %v\n", filepath, port))
+
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+}
+
+func addHeaders(h http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		h.ServeHTTP(w, r)
+	}
 }
