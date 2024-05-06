@@ -1,4 +1,4 @@
 linters:
   disable-all: true
   enable:
-    gofumpt
+    - gofumpt
