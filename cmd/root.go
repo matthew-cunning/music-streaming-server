@@ -35,7 +35,6 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		root := &RootCfg{cmd}
-		// root.serve()
 		root.serveHls()
 	},
 }
