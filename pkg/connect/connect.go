@@ -19,9 +19,7 @@ const (
 	DEFAULT_DELAY = 250 // milliseconds
 )
 
-var (
-	totalStreamedSize int
-)
+var totalStreamedSize int
 
 // The settings to pass to the creation of a new connection
 type AudioSettings struct {
@@ -88,7 +86,6 @@ func (cp *ConnectionPool) Broadcast(buffer []byte) {
 
 // Reads from entire contents of file and broadcasts to each connection in the connectionpool
 func Stream(connectionPool *ConnectionPool, content []byte, settings *AudioSettings) {
-
 	log.Println("inside go stream...")
 	buffer := make([]byte, settings.BufferSize)
 

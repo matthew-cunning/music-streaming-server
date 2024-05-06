@@ -55,7 +55,6 @@ func init() {
 }
 
 func (r *RootCfg) serve() {
-
 	// TODO: Add error handling/logging
 	port, _ := r.Flags().GetInt("port")
 
@@ -119,7 +118,6 @@ func (r *RootCfg) serve() {
 }
 
 func (r *RootCfg) serveHls() {
-
 	port, _ := r.Flags().GetInt("port")
 	filepath, _ := r.Flags().GetString("filepath")
 
@@ -135,7 +133,6 @@ func (r *RootCfg) serveHls() {
 	slog.Info(fmt.Sprintf("Serving %s over HTTP on port %v\n", filepath, port))
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
-
 }
 
 func addHeaders(h http.Handler) http.HandlerFunc {
@@ -143,5 +140,4 @@ func addHeaders(h http.Handler) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		h.ServeHTTP(w, r)
 	}
-
 }
