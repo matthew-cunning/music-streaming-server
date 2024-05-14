@@ -55,7 +55,7 @@ const (
 
 func (r *RootCfg) serveHls() {
 
-	port, _ := r.Flags().GetInt("hlsport")
+	port, _ := r.Flags().GetInt("port")
 	verbose, _ := r.Flags().GetBool("verbose")
 	debug, _ := r.Flags().GetBool("debug")
 	dirPath, _ := r.Flags().GetString("dirpath")
