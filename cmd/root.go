@@ -20,8 +20,8 @@ var rootCmd = &cobra.Command{
 	Use:   "project-audio-streamer",
 	Short: "Audio streaming server application which serves audio files over HTTP.",
 	Long: `### project-audio-streamer ###
-	An audio streaming server application which serves audio files over HTTP using HLS.
-	`,
+An audio streaming server application which serves audio files over HTTP using HLS.
+`,
 
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
