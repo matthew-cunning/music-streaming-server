@@ -9,21 +9,9 @@ import (
 	"github.com/matthew-c-atu/project-audio-streamer/internal/pkg/utils"
 )
 
-type testCase struct {
-	dirpath string
-}
-
-type Client struct {
-	url string
-}
-
-func NewClient(url string) Client {
-	return Client{url}
-}
-
 func TestFindFilesWithExtension(t *testing.T) {
 
-	t.Run("testInvalidFilePath", func(t *testing.T) {
+	t.Run("test invalid filepath", func(t *testing.T) {
 		invalidPath := "foo/bar"
 		found := utils.FindFilesWithExtension(invalidPath, ".m3u8")
 		expected := 0
@@ -35,7 +23,7 @@ func TestFindFilesWithExtension(t *testing.T) {
 }
 
 func TestAddHeaders(t *testing.T) {
-	t.Run("testHeadersApplied", func(t *testing.T) {
+	t.Run("test headers applied", func(t *testing.T) {
 		server := httptest.NewServer(utils.AddHeaders(nil))
 		defer server.Close()
 		resp, err := http.Get(server.URL)

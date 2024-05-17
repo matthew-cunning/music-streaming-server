@@ -55,7 +55,12 @@ const (
 
 func (r *RootCfg) serveHls() {
 
-	port, _ := r.Flags().GetInt("port")
+	port, err := r.Flags().GetInt("port")
+
+	if err != nil {
+		log.Fatal("Couldn't get port flag")
+	}
+
 	verbose, _ := r.Flags().GetBool("verbose")
 	debug, _ := r.Flags().GetBool("debug")
 	dirPath, _ := r.Flags().GetString("dirpath")
@@ -86,17 +91,18 @@ func (r *RootCfg) serveHls() {
 	mux.Handle(songFilesEndpoint, songFilesHandler(marshaledPlaylistFiles))
 	mux.Handle(songNamesEndpoint, songNamesHandler(marshaledSongNames))
 
+	if debug {
+		r.printFileNames()
+	}
+
+	slog.Info(fmt.Sprintf("Starting fileserver on port %v\n", port))
+
 	if verbose {
 		slog.Info(fmt.Sprintf("Serving %s over HTTP on port %v\n", dirPath, port))
 		slog.Info(fmt.Sprintf("Serving names of files with exentension %v in directory %v over HTTP on port %v%s\n", extension, dirPath, port, songFilesEndpoint))
 		slog.Info(fmt.Sprintf("Serving names of songs in directory %v over HTTP on port %v%s\n", dirPath, port, songNamesEndpoint))
 	}
 
-	if debug {
-		r.printFileNames()
-	}
-
-	slog.Info(fmt.Sprintf("Starting fileserver on port %v\n", port))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), mux))
 }
 

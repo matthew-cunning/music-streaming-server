@@ -20,14 +20,6 @@ func FindFilesWithExtension(root, extension string) []string {
 	return found
 }
 
-// func AddHeaders(headers map[string]string) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		for k, v := range headers {
-// 			w.Header().Set(k, v)
-// 		}
-// 	}
-// }
-
 func AddHeaders(h http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Access-Control-Allow-Origin", "*")
@@ -37,12 +29,3 @@ func AddHeaders(h http.Handler) http.HandlerFunc {
 		}
 	}
 }
-
-// func AddHeaders(h http.Handler, headers map[string]string) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		for k, v := range headers {
-// 			w.Header().Set(k, v)
-// 		}
-// 		h.ServeHTTP(w, r)
-// 	}
-// }
