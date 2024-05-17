@@ -54,9 +54,7 @@ const (
 )
 
 func (r *RootCfg) serveHls() {
-
 	port, err := r.Flags().GetInt("port")
-
 	if err != nil {
 		log.Fatal("Couldn't get port flag")
 	}
@@ -70,7 +68,6 @@ func (r *RootCfg) serveHls() {
 	var songNames []string
 	for f := range playlistFiles {
 		songNames = append(songNames, strings.TrimSuffix(playlistFiles[f], extension))
-
 	}
 
 	marshaledPlaylistFiles, err := json.Marshal(playlistFiles)

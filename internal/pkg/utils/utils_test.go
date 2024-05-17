@@ -10,7 +10,6 @@ import (
 )
 
 func TestFindFilesWithExtension(t *testing.T) {
-
 	t.Run("test invalid filepath", func(t *testing.T) {
 		invalidPath := "foo/bar"
 		found := utils.FindFilesWithExtension(invalidPath, ".m3u8")
@@ -27,7 +26,6 @@ func TestAddHeaders(t *testing.T) {
 		server := httptest.NewServer(utils.AddHeaders(nil))
 		defer server.Close()
 		resp, err := http.Get(server.URL)
-
 		if err != nil {
 			t.Error(err)
 		}
