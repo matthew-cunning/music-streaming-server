@@ -85,8 +85,8 @@ func (r *RootCfg) serveHls() {
 	fs := http.FileServer(http.Dir(dirPath))
 
 	mux.Handle("/", utils.AddHeaders(fs))
-	mux.Handle(songFilesEndpoint, songFilesHandler(marshaledPlaylistFiles))
-	mux.Handle(songNamesEndpoint, songNamesHandler(marshaledSongNames))
+	mux.Handle(songFilesEndpoint, utils.AddHeaders(songFilesHandler(marshaledPlaylistFiles)))
+	mux.Handle(songNamesEndpoint, utils.AddHeaders(songNamesHandler(marshaledSongNames)))
 
 	if debug {
 		r.printFileNames()
