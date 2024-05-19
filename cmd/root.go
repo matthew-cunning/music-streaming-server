@@ -66,8 +66,8 @@ func (r *RootCfg) serveHls() {
 	playlistFiles := utils.FindFilesWithExtension(dirPath, extension)
 
 	var songNames []string
-	for f := range playlistFiles {
-		songNames = append(songNames, strings.TrimSuffix(playlistFiles[f], extension))
+	for _, v := range playlistFiles {
+		songNames = append(songNames, strings.TrimSuffix(v, extension))
 	}
 
 	marshaledPlaylistFiles, err := json.Marshal(playlistFiles)
@@ -85,8 +85,8 @@ func (r *RootCfg) serveHls() {
 	fs := http.FileServer(http.Dir(dirPath))
 
 	mux.Handle("/", utils.AddHeaders(fs))
-	mux.Handle(songFilesEndpoint, utils.AddHeaders(songFilesHandler(marshaledPlaylistFiles)))
-	mux.Handle(songNamesEndpoint, utils.AddHeaders(songNamesHandler(marshaledSongNames)))
+	mux.Handle(songFilesEndpoint, utils.AddHeaders(endpointWriteHandler(marshaledPlaylistFiles)))
+	mux.Handle(songNamesEndpoint, utils.AddHeaders(endpointWriteHandler(marshaledSongNames)))
 
 	if debug {
 		r.printFileNames()
@@ -132,14 +132,8 @@ func (r *RootCfg) printFileNames() {
 	}
 }
 
-func songFilesHandler(songFiles []byte) http.HandlerFunc {
+func endpointWriteHandler(data []byte) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Write(songFiles)
-	}
-}
-
-func songNamesHandler(songNames []byte) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Write(songNames)
+		w.Write(data)
 	}
 }
