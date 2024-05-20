@@ -43,8 +43,9 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Verbose logging")
 	rootCmd.PersistentFlags().BoolP("debug", "g", false, "Debug logging")
+	rootCmd.PersistentFlags().BoolP("docker", "d", false, "Toggle Docker mode - Uses host.docker.internal instead of localhost")
 	rootCmd.PersistentFlags().IntP("port", "p", 9001, "The port on which to host the HLS file server")
-	rootCmd.PersistentFlags().StringP("dirpath", "d", "music/hls", "The path to the directory being served")
+	rootCmd.PersistentFlags().String("dirpath", "music/hls", "The path to the directory being served")
 }
 
 const (
